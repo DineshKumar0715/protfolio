@@ -11,7 +11,7 @@ export const config = {
         about: "Pre-final year Computer Science and Design student at Sona College of Technology (CGPA: 8.86). Strong interest in Python, C, AI/ML, wireless networking, and scalable backend systems. Passionate about building intelligent, efficient, and reliable software solutions."
     },
     social: {
-        github: "dineshkumar-s-m",
+        github: "DineshKumar0715",
         linkedin: "dineshkumar-s-m",
         email: "smdk0715@gmail.com"
     },

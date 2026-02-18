@@ -41,7 +41,7 @@ const languageColors = {
 };
 
 const ITEMS_PER_PAGE = 6;
-const GITHUB_API_URL = `https://api.github.com/users/${config.social.github}/repos`;
+const GITHUB_API_URL = '/api/github';
 
 const getProjectSize = (index) => {
     const sizes = [
@@ -94,7 +94,7 @@ const ErrorAlert = ({ error, onRetry }) => (
         <AlertDescription className="flex items-center justify-between">
             <span>
                 Failed to load projects. Please try again later.
-                Rate limit exceeded
+                {error.info && ` (${error.info})`}
             </span>
             <Button
                 variant="outline"
@@ -143,7 +143,7 @@ const ProjectCard = ({ project, size }) => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shiny-sweep" />
                 </div>
-                
+
                 {/* Glossy shine effect */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-300">
                     <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent rounded-t-2xl" />
@@ -233,7 +233,7 @@ const GithubProjects = () => {
     const [isLoadingMore, setIsLoadingMore] = React.useState(false);
 
     const { data, error, isLoading, mutate: revalidateData } = useSWR(
-        `${GITHUB_API_URL}?sort=updated&per_page=${ITEMS_PER_PAGE * page}`,
+        `${GITHUB_API_URL}?username=${config.social.github}&sort=updated&per_page=${ITEMS_PER_PAGE * page}`,
         fetcher,
         {
             revalidateOnFocus: false,
@@ -245,15 +245,15 @@ const GithubProjects = () => {
     const projects = React.useMemo(() => {
         if (!data) return [];
         const filtered = data
-            .filter(project => 
-                !project.fork && 
-                !project.private && 
-                (project.name.toLowerCase().includes('portfolio') || 
-                 (project.topics && project.topics.some(topic => topic.toLowerCase().includes('portfolio'))))
+            .filter(project =>
+                !project.fork &&
+                !project.private &&
+                (project.name.toLowerCase().includes('portfolio') ||
+                    (project.topics && project.topics.some(topic => topic.toLowerCase().includes('portfolio'))))
             )
             .sort((a, b) => b.stargazers_count - a.stargazers_count)
             .slice(0, ITEMS_PER_PAGE * page);
-        
+
         return filtered.map((project, index) => ({
             ...project,
             size: getProjectSize(index)
@@ -308,62 +308,62 @@ const GithubProjects = () => {
                             </motion.p>
                         </div>
 
-                    <motion.div
-                        variants={containerAnimation}
-                        initial="hidden"
-                        animate="show"
-                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 auto-rows-fr gap-3 sm:gap-4 w-full max-w-6xl mx-auto"
-                    >
-                        {isLoading ? (
-                            Array(ITEMS_PER_PAGE).fill(0).map((_, index) => (
-                                <div key={index} className={getProjectSize(index)}>
-                                    <ProjectSkeleton />
-                                </div>
-                            ))
-                        ) : error ? (
-                            <ErrorAlert error={error} onRetry={handleRetry} />
-                        ) : (
-                            projects.map((project) => (
-                                <ProjectCard key={project.id} project={project} size={project.size} />
-                            ))
-                        )}
-                    </motion.div>
-
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-8 sm:mt-0">
-                        {!error && data?.length > projects.length && (
-                            <Button
-                                variant="outline"
-                                onClick={loadMore}
-                                disabled={isLoadingMore}
-                                className="rounded-full px-5 py-5 sm:px-6 sm:py-6 text-sm sm:text-base w-full sm:w-auto"
-                            >
-                                {isLoadingMore ? (
-                                    <>
-                                        <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
-                                        Loading...
-                                    </>
-                                ) : (
-                                    'Load More Projects'
-                                )}
-                            </Button>
-                        )}
-
-                        <Button
-                            variant="expandIcon"
-                            Icon={FaGithub}
-                            iconPlacement="right"
-                            className="rounded-full px-5 py-5 sm:px-6 sm:py-6 text-sm sm:text-base w-full sm:w-auto"
-                            asChild
+                        <motion.div
+                            variants={containerAnimation}
+                            initial="hidden"
+                            animate="show"
+                            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 auto-rows-fr gap-3 sm:gap-4 w-full max-w-6xl mx-auto"
                         >
-                            <a
-                                href={`https://github.com/${config.social.github}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            {isLoading ? (
+                                Array(ITEMS_PER_PAGE).fill(0).map((_, index) => (
+                                    <div key={index} className={getProjectSize(index)}>
+                                        <ProjectSkeleton />
+                                    </div>
+                                ))
+                            ) : error ? (
+                                <ErrorAlert error={error} onRetry={handleRetry} />
+                            ) : (
+                                projects.map((project) => (
+                                    <ProjectCard key={project.id} project={project} size={project.size} />
+                                ))
+                            )}
+                        </motion.div>
+
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-8 sm:mt-0">
+                            {!error && data?.length > projects.length && (
+                                <Button
+                                    variant="outline"
+                                    onClick={loadMore}
+                                    disabled={isLoadingMore}
+                                    className="rounded-full px-5 py-5 sm:px-6 sm:py-6 text-sm sm:text-base w-full sm:w-auto"
+                                >
+                                    {isLoadingMore ? (
+                                        <>
+                                            <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        'Load More Projects'
+                                    )}
+                                </Button>
+                            )}
+
+                            <Button
+                                variant="expandIcon"
+                                Icon={FaGithub}
+                                iconPlacement="right"
+                                className="rounded-full px-5 py-5 sm:px-6 sm:py-6 text-sm sm:text-base w-full sm:w-auto"
+                                asChild
                             >
-                                View More on Github
-                            </a>
-                        </Button>
-                    </div>
+                                <a
+                                    href={`https://github.com/${config.social.github}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View More on Github
+                                </a>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
